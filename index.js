@@ -1,10 +1,17 @@
-// Function to fetch legendary creatures from Scryfall API
+// Function to fetch all legendary creatures from Scryfall API
 async function fetchLegendaryCreatures() {
+    const creatures = [];
+    let nextPageUrl = 'https://api.scryfall.com/cards/search?q=type:legendary';
+
     try {
-        const response = await fetch('https://api.scryfall.com/cards/search?q=type:legendary');
-        const data = await response.json();
-        console.log(data); // Log the entire response to check contents
-        return data.data; // Return the array of creatures
+        while (nextPageUrl) {
+            const response = await fetch(nextPageUrl);
+            const data = await response.json();
+            creatures.push(...data.data); // Add fetched creatures to the array
+            nextPageUrl = data.has_more ? data.next_page : null; // Check for more pages
+        }
+        console.log(creatures); // Log all fetched creatures to check contents
+        return creatures; // Return the full array of creatures
     } catch (error) {
         console.error("Error fetching creatures:", error);
     }
