@@ -7,7 +7,16 @@ async function fetchLegendaryCreatures() {
         while (nextPageUrl) {
             const response = await fetch(nextPageUrl);
             const data = await response.json();
-            creatures.push(...data.data); // Add fetched creatures to the array
+            // Filter to only include legendary creatures or Commander-specific Planeswalkers
+            const filteredCreatures = data.data.filter(creature => {
+                // Check if it's a Legendary Creature or a Commander-specific Planeswalker
+                return (creature.type_line === 'Legendary Creature' || 
+                        (creature.type_line === 'Planeswalker' && 
+                         creature.oracle_text && 
+                         creature.oracle_text.includes('Commander'))) &&
+                       !creature.type_line.match(/Legendary (Artifact|Background|Equipment|Instant|Sorcery|Enchantment|Aura|Battle|Land)/); // Exclude other Legendary types
+            });
+            creatures.push(...filteredCreatures); // Add filtered creatures to the array
             nextPageUrl = data.has_more ? data.next_page : null; // Check for more pages
         }
         console.log(creatures); // Log all fetched creatures to check contents
@@ -94,9 +103,25 @@ async function generateCreature() {
 // Function to display the creature's information
 function displayCreature(creature) {
     const creatureDiv = document.getElementById('creature');
+    
+    // Check if the card has multiple faces
+    let imageUrl = 'https://via.placeholder.com/150'; // Fallback image
+
+    if (creature.card_faces) {
+        // Find the first image that has a 'normal' size
+        for (const face of creature.card_faces) {
+            if (face.image_uris && face.image_uris.normal) {
+                imageUrl = face.image_uris.normal; // Use the first valid image found
+                break; // Exit loop after finding the first valid image
+            }
+        }
+    } else {
+        imageUrl = creature.image_uris?.normal || imageUrl; // Fallback to normal image if no faces
+    }
+
     creatureDiv.innerHTML = `
         <h2>${creature.name}</h2>
-        <img src="${creature.image_uris?.normal || 'https://via.placeholder.com/150'}" alt="${creature.name}">
+        <img src="${imageUrl}" alt="${creature.name}">
         <p>${creature.oracle_text || 'No description available.'}</p>
     `;
 }
