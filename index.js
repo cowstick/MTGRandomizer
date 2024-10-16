@@ -60,8 +60,8 @@ function displayCard(card) {
 
     cardDiv.innerHTML = `
         <h2>${card.name}</h2>
-        <img src="${imageUrl}" alt="${card.name}">
-        <p>${card.oracle_text || 'No description available.'}</p>
+        <img id="creature-card" class="border border-5 border-dark col-6 col-md-4 mx-auto" src="${imageUrl}" alt="${card.name}">
+        <p class="col-12 col-sm-6 mx-auto">${card.oracle_text || 'No description available.'}</p>
     `;
 }
 
