@@ -18,8 +18,8 @@ async function fetchLegendaryCards() {
                 return (
                     card.type_line.includes('Legendary Creature') || 
                     (card.type_line.includes('Legendary Planeswalker') && 
-                     card.oracle_text && 
-                     card.oracle_text.includes('Commander'))
+                    card.oracle_text && 
+                    card.oracle_text.includes('Commander'))
                 );
             });
 
@@ -60,8 +60,8 @@ function displayCard(card) {
 
     cardDiv.innerHTML = `
         <h2>${card.name}</h2>
-        <img id="creature-card" class="border border-5 border-dark col-6 col-md-4 mx-auto" src="${imageUrl}" alt="${card.name}">
-        <p class="col-12 col-sm-6 mx-auto">${card.oracle_text || 'No description available.'}</p>
+        <img id="creature-card" class="border border-5 border-dark col-8 col-md-5 col-lg-4 mx-auto" src="${imageUrl}" alt="${card.name}">
+        <p class="col-12 col-md-6 mx-auto">${card.oracle_text || 'No description available.'}</p>
     `;
 }
 
