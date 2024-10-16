@@ -16,10 +16,10 @@ async function fetchLegendaryCards() {
             // Filter for legendary creatures and legendary Planeswalkers
             const filteredCards = data.data.filter(card => {
                 return (
-                    card.type_line.includes('Legendary Creature') || 
-                    (card.type_line.includes('Legendary Planeswalker') && 
-                    card.oracle_text && 
-                    card.oracle_text.includes('Commander'))
+                    card.type_line.includes('Legendary Creature') ||
+                    (card.type_line.includes('Legendary Planeswalker') &&
+                        card.oracle_text &&
+                        card.oracle_text.includes('Commander'))
                 );
             });
 
