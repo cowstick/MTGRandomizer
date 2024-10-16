@@ -1,28 +1,36 @@
-// Function to fetch all legendary creatures from Scryfall API
-async function fetchLegendaryCreatures() {
-    const creatures = [];
-    let nextPageUrl = 'https://api.scryfall.com/cards/search?q=type:legendary';
+let nextPageUrl = 'https://api.scryfall.com/cards/search?q=type:legendary'; // Initial API URL for legendary creatures
+let creatures = []; // Initialize the creatures array
 
+async function fetchLegendaryCreatures() {
     try {
-        while (nextPageUrl) {
-            const response = await fetch(nextPageUrl);
-            const data = await response.json();
-            // Filter to only include legendary creatures or Commander-specific Planeswalkers
-            const filteredCreatures = data.data.filter(creature => {
-                // Check if it's a Legendary Creature or a Commander-specific Planeswalker
-                return (creature.type_line === 'Legendary Creature' || 
-                        (creature.type_line === 'Planeswalker' && 
-                         creature.oracle_text && 
-                         creature.oracle_text.includes('Commander'))) &&
-                       !creature.type_line.match(/Legendary (Artifact|Background|Equipment|Instant|Sorcery|Enchantment|Aura|Battle|Land)/); // Exclude other Legendary types
-            });
-            creatures.push(...filteredCreatures); // Add filtered creatures to the array
-            nextPageUrl = data.has_more ? data.next_page : null; // Check for more pages
+        console.log("Fetching from URL:", nextPageUrl); // Log the URL
+        const response = await fetch(nextPageUrl);
+        if (!response.ok) {
+            throw new Error(`Error fetching creatures: ${response.statusText}`);
         }
+        const data = await response.json();
+        
+        // Log the fetched data for debugging
+        console.log("Fetched data:", data);
+
+        // Include all legendary creatures
+        const filteredCreatures = data.data.filter(creature => {
+            return (
+                creature.type_line.includes('Legendary') || 
+                (creature.type_line.includes('Planeswalker') && 
+                 creature.oracle_text && 
+                 creature.oracle_text.includes('Commander'))
+            );
+        });
+
+        creatures.push(...filteredCreatures); // Add filtered creatures to the array
+        nextPageUrl = data.has_more ? data.next_page : null; // Update nextPageUrl if more pages exist
+
         console.log(creatures); // Log all fetched creatures to check contents
         return creatures; // Return the full array of creatures
     } catch (error) {
         console.error("Error fetching creatures:", error);
+        return []; // Return an empty array on error
     }
 }
 
@@ -85,13 +93,13 @@ function displaySpecificDeck(deck) {
 // Function to generate and display a random creature
 async function generateCreature() {
     const creatures = await fetchLegendaryCreatures();
-    if (creatures) {
+    if (creatures.length > 0) {
         const randomIndex = Math.floor(Math.random() * creatures.length);
         const randomCreature = creatures[randomIndex];
         displayCreature(randomCreature);
         const decks = await fetchDecks(randomCreature.name);
         displayDecks(decks);
-        
+
         // Fetch a specific deck (example: player ID 7956, deck ID 245797)
         fetchSpecificDeck(7956, 245797);
     } else {
@@ -103,15 +111,15 @@ async function generateCreature() {
 // Function to display the creature's information
 function displayCreature(creature) {
     const creatureDiv = document.getElementById('creature');
-    
+
     // Check if the card has multiple faces
     let imageUrl = 'https://via.placeholder.com/150'; // Fallback image
 
     if (creature.card_faces) {
-        // Find the first image that has a 'normal' size
+        // Use the first valid image found
         for (const face of creature.card_faces) {
             if (face.image_uris && face.image_uris.normal) {
-                imageUrl = face.image_uris.normal; // Use the first valid image found
+                imageUrl = face.image_uris.normal;
                 break; // Exit loop after finding the first valid image
             }
         }
