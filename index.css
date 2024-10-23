@@ -44,6 +44,11 @@ img {
     0 0 0 15px hsla(44, 93%, 40%, 0.452);
 }
 
+svg {
+    margin: 5px;
+    margin-top: 20px;
+}
+
 ul { list-style-type: none; padding: 0; }
 
 
